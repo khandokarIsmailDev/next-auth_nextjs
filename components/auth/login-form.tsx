@@ -6,6 +6,7 @@ import { LoginSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import FormSuccess from "./form-success";
 
 import{
   Form,
@@ -15,6 +16,7 @@ import{
   FormMessage,
   FormItem
 } from "@/components/ui/form"
+import FromError from "./from-error";
 
 
 export default function LoginForm() {
@@ -26,6 +28,10 @@ export default function LoginForm() {
       password:""
     }
   })
+
+  const onSubmit = (values:z.infer<typeof LoginSchema>) =>{
+    console.log(values)
+  }
   return (
     <CardWrapper
         headerLabel="Welcome Back"
@@ -34,7 +40,7 @@ export default function LoginForm() {
         showSocial
     >
         <Form {...form} >
-          <form onSubmit={form.handleSubmit(()=>{})} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
               <FormField
                 control={form.control}
@@ -74,6 +80,8 @@ export default function LoginForm() {
                 )}
               />
             </div>
+            <FromError message={form.formState.errors.email?.message}/>
+            <FormSuccess message={form.formState.errors.password?.message}/>
             <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-xl">
                 Login
             </Button>
