@@ -16,13 +16,14 @@ interface CardWrapperProps{
     backButtonLabel: string;
     backButtonHref: string;
     showSocial?: boolean;
+    headerText?:string;
 }
 
-export default function CardWrapper({children,headerLabel,backButtonHref,backButtonLabel,showSocial}:CardWrapperProps) {
+export default function CardWrapper({children,headerLabel,backButtonHref,backButtonLabel,showSocial,headerText}:CardWrapperProps) {
   return (
     <Card className="w-[400px] shadow-md bg-white">
       <CardHeader>
-        <Header label={headerLabel}/>
+        <Header label={headerLabel} headerText={headerText}/>
       </CardHeader>
       <CardContent>
         {children}
