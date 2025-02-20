@@ -1,49 +1,48 @@
-import NextAuth from "next-auth";
-import authConfig from "./auth.config";
-import{
+import { auth } from "./auth";
+import {
     publicRoutes,
     authRoutes,
     apiAuthPrefix,
     DEFAULT_LOGIN_REDIRECT
-} from "@/routes"
+} from "@/routes";
+import { NextResponse } from "next/server";
 
-const {auth} = NextAuth(authConfig)
-
-
-
-export default auth((req) =>{
-    const {nextUrl} = req;
+export default auth((req) => {
+    const { nextUrl } = req;
     const isLoggedIn = !!req.auth;
 
-
-    const isApiRoutes = nextUrl.pathname.startsWith(apiAuthPrefix);
-    const isPublicRoutes = publicRoutes.includes(nextUrl.pathname);
+    const isApiRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+    const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
     const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
-    if(isApiRoutes){
-        return null;
+    // Allow API routes to proceed without authentication
+    if (isApiRoute) {
+        return NextResponse.next(); // Explicitly allow the request to proceed
     }
 
-    if(isAuthRoute){
-        if(isLoggedIn){
-            return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT,nextUrl))
+    // Handle authentication routes
+    if (isAuthRoute) {
+        if (isLoggedIn) {
+            // Redirect logged-in users away from auth routes
+            return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
         }
-        return null; 
+        return NextResponse.next(); // Allow the request to proceed for non-logged-in users
     }
 
-    if(!isLoggedIn && !isPublicRoutes){
-        return Response.redirect(new URL("/auth/login",nextUrl))
+    // Redirect to login if the user is not logged in and the route is not public
+    if (!isLoggedIn && !isPublicRoute) {
+        return NextResponse.redirect(new URL("/auth/login", nextUrl));
     }
 
-    // console.log("Route: ",req.nextUrl.pathname)
-    // console.log("isLoggedIn:", isLoggedIn)
-})
+    // Allow the request to proceed for public routes or logged-in users
+    return NextResponse.next();
+});
 
 export const config = {
     matcher: [
-      // Skip Next.js internals and all static files, unless found in search params
-      '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-      // Always run for API routes
-      '/(api|trpc)(.*)',
+        // Skip Next.js internals and static files
+        '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+        // Always run for API routes
+        '/(api|trpc)(.*)',
     ],
-  }
+};
