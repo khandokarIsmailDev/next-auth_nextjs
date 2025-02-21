@@ -5,6 +5,7 @@ import { LoginSchema } from "./schemas"
 import { getUserByEmail, getUserById } from "./data/user";
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs";
+import { UserRole } from "@prisma/client";
  
  
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -16,9 +17,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 session.user.id = token.sub;
             }
 
-            if(token.role && session.user){
-                session.user.role = token.role;
+            if(token.role && session.user) {
+                // Extend the session.user type to include role
+                // (session.user as any).role = token.role as "ADMIN" | "USER";
+                session.user.role = token.role as UserRole;
             }
+
             return session;
         },
         async jwt({token}){
