@@ -26,6 +26,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                             name: user.name,
                             image: user.image,
                             role: "USER",
+                            emailVerified: new Date(),
                         }
                     });
                     // Type assertion to extend User type with role
