@@ -38,6 +38,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     (user as any).role = existingUser.role;
                 }
             }
+
+            //witout email verfication, not allow for login
+            const existingUser = user.id ? await getUserById(user.id) : null;
+            if(!existingUser?.emailVerified) return false;
+
+            //TODO: 2FA setup
+            
             return true;
         },
         async session({token,session}){
