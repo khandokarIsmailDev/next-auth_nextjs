@@ -26,25 +26,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                             name: user.name,
                             image: user.image,
                             role: "USER",
-                            emailVerified: new Date(),
+                            emailVerified: new Date(), // Social login emails are pre-verified
                         }
                     });
-                    // Type assertion to extend User type with role
                     (user as any).id = newUser.id;
                     (user as any).role = newUser.role;
                 } else {
-                    // Type assertion to extend User type with role
+                    // If user exists and trying to login with social provider
+                    // Update emailVerified if it's a social login
+                    if (!existingUser.emailVerified) {
+                        await db.user.update({
+                            where: { id: existingUser.id },
+                            data: { emailVerified: new Date() }
+                        });
+                    }
                     (user as any).id = existingUser.id;
                     (user as any).role = existingUser.role;
                 }
+                return true; // Allow social login without additional verification check
             }
 
-            //witout email verfication, not allow for login
-            const existingUser = user.id ? await getUserById(user.id) : null;
-            if(!existingUser?.emailVerified) return false;
+            // For credentials provider only
+            if (!account?.provider && user.email) {
+                const existingUser = await getUserByEmail(user.email);
+                if (!existingUser?.emailVerified) return false;
+            }
 
-            //TODO: 2FA setup
-            
             return true;
         },
         async session({token,session}){
