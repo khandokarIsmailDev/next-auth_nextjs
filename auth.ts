@@ -26,22 +26,35 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                             name: user.name,
                             image: user.image,
                             role: "USER",
-                            emailVerified: new Date(), // Social login emails are pre-verified
+                            emailVerified: new Date(),
                         }
                     });
                     (user as any).id = newUser.id;
                     (user as any).role = newUser.role;
                 } else {
-                    // If user exists and trying to login with social provider
-                    // Update emailVerified if it's a social login
+                    // Update emailVerified and image if needed
+                    const updateData: any = {};
+                    
                     if (!existingUser.emailVerified) {
+                        updateData.emailVerified = new Date();
+                    }
+                    
+                    if (!existingUser.image && user.image) {
+                        updateData.image = user.image;
+                    }
+                    
+                    if (Object.keys(updateData).length > 0) {
                         await db.user.update({
                             where: { id: existingUser.id },
-                            data: { emailVerified: new Date() }
+                            data: updateData
                         });
                     }
+
+                    // Use existing user data
                     (user as any).id = existingUser.id;
                     (user as any).role = existingUser.role;
+                    (user as any).name = existingUser.name;
+                    (user as any).image = existingUser.image || user.image;
                 }
                 return true; // Allow social login without additional verification check
             }
