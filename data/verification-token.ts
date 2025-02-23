@@ -7,6 +7,7 @@ export const getVerificationTokenByToken = async (token:string) =>{
                 token
             }
         })
+        return verificationToken;
     }catch{
         return null;
     }
