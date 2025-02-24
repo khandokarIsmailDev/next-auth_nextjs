@@ -7,7 +7,8 @@ export const publicRoutes = [
 
 export const authRoutes =[
     "/auth/login",
-    "/auth/register"
+    "/auth/register",
+    "/auth/reset"
 ]
 
 //je kew ai link proves korte parve

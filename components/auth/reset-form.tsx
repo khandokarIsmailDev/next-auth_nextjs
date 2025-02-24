@@ -2,12 +2,12 @@
 import { useForm } from "react-hook-form";
 import CardWrapper from "./CardWrapper";
 import { z } from "zod";
-import { LoginSchema } from "@/schemas";
+import { ResetPasswordSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import FormSuccess from "./form-success";
-import { login } from "@/actions/login";
+import { reset } from "@/actions/reset";
 import {useState, useTransition} from "react"
 
 import{
@@ -22,26 +22,27 @@ import FromError from "./from-error";
 import Link from "next/link";
 
 
-export default function LoginForm() {
+export default function ResetForm() {
 
   const [isPending,startTransition] = useTransition()
   const [error,setError] = useState<string | undefined>("")
   const [success,setSuccess] = useState<string | undefined>("")
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver:zodResolver(LoginSchema),
+  const form = useForm<z.infer<typeof ResetPasswordSchema>>({
+    resolver:zodResolver(ResetPasswordSchema),
     defaultValues:{
-      email:"",
-      password:""
+      email:""
     }
   })
 
-  const onSubmit = (values:z.infer<typeof LoginSchema>) =>{
+  const onSubmit = (values:z.infer<typeof ResetPasswordSchema>) =>{
     setError("")
     setSuccess("")
 
+    console.log(values)
+
     startTransition(()=>{
-      login(values)
+      reset(values)
       .then((data) =>{
         setError(data?.error)
         setSuccess(data?.success)
@@ -50,11 +51,10 @@ export default function LoginForm() {
   }
   return (
     <CardWrapper
-        headerLabel="Welcome Back"
-        backButtonLabel="Don't have an account?"
-        backButtonHref="/auth/register"
-        showSocial
-        headerText="Auth-Login"
+        headerLabel=""
+        backButtonLabel="Back To Login?"
+        backButtonHref="/auth/login"
+        headerText="Reset Password"
     >
         <Form {...form} >
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -79,40 +79,12 @@ export default function LoginForm() {
                 )}
               />
                 
-              <FormField
-                control={form.control}
-                name="password"
-                render = {({field}) =>(
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                      {...field}
-                      disabled={isPending}
-                      placeholder="Enter your password"
-                      type="password"
-                      className="rounded border-gray-300 placeholder:text-gray-400"
-                      />
-                    </FormControl>
-                    <Button
-                      size="sm"
-                      variant="link"
-                      asChild
-                      className="py-0 text-blue-500 font-bold"
-                    >
-                      <Link href="/auth/reset">
-                        Forgot Password?
-                      </Link>
-                    </Button>
-                    <FormMessage className="text-red-500 "/>
-                  </FormItem>
-                )}
-              />
+              
             </div>
             <FromError message={error}/>
             <FormSuccess message={success}/>
             <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-xl">
-                Login
+                Send reset email
             </Button>
           </form>
         </Form>
