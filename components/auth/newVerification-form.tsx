@@ -17,6 +17,7 @@ export const NewVerificationForm = () => {
     const token = searchParams.get("token");
 
     const onSubmit = useCallback(async () => {
+        if(success || error) return;
         if(!token) {
             setError("Token not found");
             setIsLoading(false);
@@ -40,7 +41,7 @@ export const NewVerificationForm = () => {
         } finally {
             setIsLoading(false);
         }
-    },[token]);
+    },[token,success,error]);
 
     useEffect(() => {
         onSubmit();
